@@ -27,12 +27,18 @@ def configure_logging() -> None:
         processors = [*shared_processors, structlog.processors.JSONRenderer()]
     else:
         processors = [*shared_processors, structlog.dev.ConsoleRenderer(colors=True)]
+    
+    logging.basicConfig(
+        level=level,
+        format="%(message)s",
+        stream=sys.stdout,
+    )
 
     structlog.configure(
         processors=processors,
         wrapper_class=structlog.make_filtering_bound_logger(level),
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(file=sys.stdout),
+        logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
 
