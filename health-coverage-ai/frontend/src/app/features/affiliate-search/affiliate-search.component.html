@@ -1,0 +1,48 @@
+<div class="search-container">
+  <div class="search-header">
+    <h1 class="search-title">Consulta de Cobertura</h1>
+    <p class="search-subtitle">
+      Ingrese el número de documento del afiliado para iniciar la consulta.
+    </p>
+  </div>
+
+  <div class="search-form">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Número de documento</mat-label>
+      <input
+        matInput
+        type="text"
+        placeholder="Ej. 1023456789"
+        [value]="documentNumber()"
+        (input)="documentNumber.set($any($event.target).value)"
+        (keyup.enter)="search()"
+        [disabled]="isLoading()"
+      />
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      color="primary"
+      class="search-button"
+      (click)="search()"
+      [disabled]="isLoading() || !documentNumber().trim()"
+    >
+      @if (isLoading()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Buscar afiliado
+      }
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="search-error" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (affiliate()) {
+    <app-affiliate-card [affiliate]="affiliate()!" />
+    <app-coverage-query [affiliate]="affiliate()!" />
+  }
+</div>

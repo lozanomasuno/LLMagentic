@@ -1,0 +1,41 @@
+<div class="query-container">
+  <h2 class="query-title">Consulta de Cobertura</h2>
+
+  <mat-form-field appearance="outline" class="query-field">
+    <mat-label>Describa la consulta de cobertura</mat-label>
+    <textarea
+      matInput
+      rows="5"
+      placeholder="Ej. ¿La resonancia magnética de rodilla está cubierta por mi plan? ¿Cuáles son las condiciones y el monto a cargo?"
+      [value]="queryText()"
+      (input)="queryText.set($any($event.target).value)"
+      [disabled]="isAnalyzing()"
+    ></textarea>
+    <mat-hint>Mínimo 10 caracteres. Sea específico sobre el servicio o procedimiento.</mat-hint>
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    color="primary"
+    class="submit-button"
+    (click)="submit()"
+    [disabled]="isAnalyzing() || queryText().trim().length < 10"
+  >
+    @if (isAnalyzing()) {
+      <mat-spinner diameter="20" />
+      <span>Analizando...</span>
+    } @else {
+      Analizar cobertura
+    }
+  </button>
+
+  @if (errorMessage()) {
+    <div class="query-notice" role="alert">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (result()) {
+    <app-coverage-result [result]="result()!" />
+  }
+</div>

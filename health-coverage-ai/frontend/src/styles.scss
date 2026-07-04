@@ -1,0 +1,40 @@
+@use '@angular/material' as mat;
+
+// Material Design 3 theme — corporate neutral palette
+html {
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Segoe UI', 'Arial', sans-serif;
+  background-color: #f4f6f8;
+  color: #263238;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+// Utility classes
+.text-muted   { color: #78909c; }
+.text-success { color: #2e7d32; }
+.text-warning { color: #e65100; }
+.text-error   { color: #c62828; }

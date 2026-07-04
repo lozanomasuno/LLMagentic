@@ -1,0 +1,30 @@
+# Development overrides — applied automatically by Docker Compose.
+# Run backend + databases in Docker; run Angular locally with: npm start
+
+services:
+  backend:
+    build:
+      target: development
+    volumes:
+      - ./backend:/app
+    environment:
+      ENV: development
+      DEBUG: "true"
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --reload-dir /app/app
+
+  # Frontend is typically run locally for hot-module-reload (npm start).
+  # Uncomment only if you need the frontend containerised in development:
+  # frontend:
+  #   build:
+  #     target: development
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   command: ng serve --host 0.0.0.0 --port 4200 --disable-host-check
+  #   ports:
+  #     - "4200:4200"

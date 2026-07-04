@@ -1,0 +1,67 @@
+.affiliate-card {
+  margin: 24px 0;
+}
+
+.card-badges {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.card-content {
+  padding-top: 16px !important;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  &--alert {
+    background: #fff3e0;
+    border-left: 3px solid #ff9800;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+}
+
+.info-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #90a4ae;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  color: #263238;
+}
+
+.info-meta {
+  font-size: 0.8rem;
+  color: #78909c;
+}
+
+.plan-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  &.plan-esencial { background: #e3f2fd; color: #1565c0; }
+  &.plan-clasico  { background: #e8f5e9; color: #2e7d32; }
+  &.plan-premium  { background: #fce4ec; color: #ad1457; }
+}

@@ -1,0 +1,60 @@
+<div class="result-container">
+  <mat-card
+    class="result-card"
+    [class]="'result-card--' + result().coverage_result"
+    appearance="outlined"
+  >
+    <mat-card-header>
+      <mat-card-title>
+        <span class="result-label">{{ resultLabel() }}</span>
+      </mat-card-title>
+      <mat-card-subtitle>
+        Consulta {{ result().consultation_id }} &mdash; {{ result().duration_ms }}ms
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p class="result-text">{{ result().response_text }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  @if (result().sources.length > 0) {
+    <mat-expansion-panel class="sources-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Documentos utilizados ({{ result().sources.length }})
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      @for (source of result().sources; track source.document) {
+        <div class="source-item">
+          <div class="source-header">
+            <mat-chip>{{ source.document }}</mat-chip>
+            <span class="source-section">{{ source.section }}</span>
+          </div>
+          <p class="source-excerpt">{{ source.excerpt }}</p>
+        </div>
+      }
+    </mat-expansion-panel>
+  }
+
+  @if (result().agent_trace.length > 0) {
+    <mat-expansion-panel class="trace-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Proceso del agente ({{ result().agent_trace.length }} pasos)
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      @for (step of result().agent_trace; track step.step) {
+        <div class="trace-step">
+          <span class="step-name">{{ step.step }}</span>
+          <span class="step-desc">{{ step.description }}</span>
+          @if (step.result) {
+            <span class="step-result">{{ step.result }}</span>
+          }
+        </div>
+      }
+    </mat-expansion-panel>
+  }
+</div>

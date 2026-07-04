@@ -1,0 +1,6 @@
+# Data directory — source files (read-only, do not process in Sprint 1)
+# Place the following files here before running Sprint 2 bootstrap scripts:
+#   - BD_afiliados.xlsx
+#   - DOC1_Manual_de_Beneficios.docx
+#   - DOC2_Terminos_y_Condiciones.docx
+#   - DOC3_Criterios_de_Necesidad_Medica.docx

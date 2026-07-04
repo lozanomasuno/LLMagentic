@@ -1,0 +1,65 @@
+<mat-card class="affiliate-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>{{ nombreCompleto() }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ affiliate().id_afiliado }} &mdash; {{ affiliate().tipo_documento }}
+      {{ affiliate().numero_documento }}
+    </mat-card-subtitle>
+    <div class="card-badges">
+      <app-status-badge [status]="affiliate().estado_afiliacion" type="affiliation" />
+      <app-status-badge [status]="affiliate().estado_pagos" type="payment" />
+    </div>
+  </mat-card-header>
+
+  <mat-divider />
+
+  <mat-card-content class="card-content">
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Plan</span>
+        <span class="info-value">
+          <span class="plan-badge" [class]="planClass()">{{ affiliate().plan }}</span>
+        </span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Antigüedad</span>
+        <span class="info-value">{{ affiliate().antiguedad_meses }} meses</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ciudad</span>
+        <span class="info-value">{{ affiliate().ciudad }}, {{ affiliate().departamento }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Tipo</span>
+        <span class="info-value">{{ affiliate().tipo_afiliado }}</span>
+      </div>
+
+      @if (affiliate().tiene_autorizacion_previa) {
+        <div class="info-item info-item--full">
+          <span class="info-label">Autorización previa vigente</span>
+          <span class="info-value">{{ affiliate().servicio_autorizado }}</span>
+          <span class="info-meta">
+            Vence: {{ affiliate().vigencia_autorizacion | date: 'dd/MM/yyyy' }}
+          </span>
+        </div>
+      }
+
+      @if (affiliate().preexistencia_declarada) {
+        <div class="info-item info-item--full">
+          <span class="info-label">Preexistencia declarada</span>
+          <span class="info-value">{{ affiliate().descripcion_preexistencia }}</span>
+        </div>
+      }
+
+      @if (affiliate().estado_pagos === 'En mora') {
+        <div class="info-item info-item--full info-item--alert">
+          <span class="info-label">Deuda pendiente</span>
+          <span class="info-value">
+            {{ affiliate().valor_pendiente_cop | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+            &mdash; {{ affiliate().dias_mora }} días de mora
+          </span>
+        </div>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

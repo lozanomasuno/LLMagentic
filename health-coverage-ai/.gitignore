@@ -1,0 +1,46 @@
+# Environment — never commit real secrets
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node / Angular
+node_modules/
+.angular/
+*.js.map
+
+# Docker volume data (local bind mounts)
+postgres_data/
+chroma_data/
+
+# Logs
+backend/logs/*.log
+*.log
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
