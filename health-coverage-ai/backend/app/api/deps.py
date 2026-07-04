@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.agents.coverage_agent import CoverageAgent
@@ -52,6 +52,14 @@ def get_document_service(
 
 def get_openai_provider() -> OpenAIProvider:
     settings = get_settings()
+    if not settings.OPENAI_API_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "openai_not_configured",
+                "message": "OpenAI API key not configured. Set OPENAI_API_KEY in your .env file.",
+            },
+        )
     return OpenAIProvider(api_key=settings.OPENAI_API_KEY, model=settings.OPENAI_MODEL)
 
 

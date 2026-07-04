@@ -9,6 +9,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 0) {
         userMessage =
           'No se puede conectar con el servidor. Verifique que el backend esté en ejecución.';
+      } else if (error.status === 503) {
+        userMessage =
+          error.error?.detail?.message ?? 'Servicio no disponible. Verifique la configuración del servidor.';
       } else if (error.status === 404) {
         userMessage = error.error?.detail ?? 'Recurso no encontrado.';
       } else if (error.status === 501) {
