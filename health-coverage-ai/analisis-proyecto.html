@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Health Coverage AI — Análisis Técnico</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+      --primary:   #1a56db;
+      --primary-l: #e8f0fe;
+      --accent:    #0ea5e9;
+      --success:   #10b981;
+      --warning:   #f59e0b;
+      --danger:    #ef4444;
+      --dark:      #111827;
+      --gray-800:  #1f2937;
+      --gray-600:  #4b5563;
+      --gray-400:  #9ca3af;
+      --gray-100:  #f3f4f6;
+      --white:     #ffffff;
+      --border:    #e5e7eb;
+      --radius:    8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--dark);
+      background: #f8fafc;
+    }
+
+    /* ── PRINT ────────────────────────────────────────── */
+    @media print {
+      body { background: white; font-size: 12px; }
+      .page-break { page-break-before: always; }
+      .no-break { page-break-inside: avoid; }
+      header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .badge, .chip, .pill, .score-bar-fill,
+      .tech-row td:first-child, th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────── */
+    .wrapper { max-width: 1020px; margin: 0 auto; padding: 0 24px 60px; }
+
+    /* ── HEADER ───────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #1a3a6b 0%, #1a56db 60%, #0ea5e9 100%);
+      color: white;
+      padding: 48px 56px 40px;
+      margin-bottom: 36px;
+    }
+    header .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    header .subtitle {
+      font-size: 15px;
+      opacity: 0.88;
+      font-weight: 400;
+      max-width: 680px;
+      color: white;
+    }
+    .header-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .header-tag {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+
+    /* ── SECTION TITLES ───────────────────────────────── */
+    .section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--gray-100);
+    }
+    .section-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+    .section-body { padding: 22px 24px; }
+
+    h2 { font-size: 13.5px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; margin-top: 20px; }
+    h2:first-child { margin-top: 0; }
+    h3 { font-size: 12.5px; font-weight: 600; color: var(--primary); margin-bottom: 8px; margin-top: 14px; }
+    p { margin-bottom: 10px; color: var(--gray-600); }
+
+    /* ── EXECUTIVE CARD ───────────────────────────────── */
+    .exec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .exec-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .exec-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--primary);
+    }
+    .exec-card.green::before { background: var(--success); }
+    .exec-card.orange::before { background: var(--warning); }
+    .exec-card.cyan::before { background: var(--accent); }
+    .exec-card .label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); margin-bottom: 4px; }
+    .exec-card .value { font-size: 20px; font-weight: 800; color: var(--dark); }
+    .exec-card .detail { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+    /* ── ARCHITECTURE DIAGRAM ─────────────────────────── */
+    .arch-diagram {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: var(--radius);
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .arch-diagram .comment { color: #64748b; }
+    .arch-diagram .highlight { color: #38bdf8; font-weight: 500; }
+    .arch-diagram .green-text { color: #4ade80; }
+    .arch-diagram .yellow-text { color: #facc15; }
+    .arch-diagram .orange-text { color: #fb923c; }
+
+    /* ── TABLES ───────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 16px; }
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      padding: 9px 12px;
+      text-align: left;
+      font-size: 11.5px;
+      letter-spacing: 0.3px;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafafa; }
+    td code, th code { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+    /* ── CHIPS & BADGES ───────────────────────────────── */
+    .chip {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+    .chip-blue   { background: #dbeafe; color: #1d4ed8; }
+    .chip-green  { background: #dcfce7; color: #15803d; }
+    .chip-orange { background: #fef3c7; color: #b45309; }
+    .chip-gray   { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+    .chip-purple { background: #ede9fe; color: #6d28d9; }
+    .chip-cyan   { background: #cffafe; color: #0e7490; }
+    .chip-pink   { background: #fce7f3; color: #9d174d; }
+
+    /* ── TECH STACK PILLS ─────────────────────────────── */
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .tech-pill .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── FLOW STEPS ───────────────────────────────────── */
+    .flow {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 110px;
+    }
+    .flow-box {
+      background: var(--primary-l);
+      border: 1.5px solid #93c5fd;
+      border-radius: 6px;
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--primary);
+      width: 100%;
+    }
+    .flow-box.ai { background: #ede9fe; border-color: #a78bfa; color: #6d28d9; }
+    .flow-box.db { background: #dcfce7; border-color: #6ee7b7; color: #065f46; }
+    .flow-box.http { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+    .flow-label { font-size: 10.5px; color: var(--gray-600); text-align: center; }
+    .flow-arrow {
+      align-self: center;
+      font-size: 18px;
+      color: var(--gray-400);
+      flex: 0;
+      padding: 0 4px;
+      margin-top: -16px;
+    }
+
+    /* ── CODE BLOCKS ──────────────────────────────────── */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.65;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .kw  { color: #c084fc; }
+    .fn  { color: #38bdf8; }
+    .str { color: #86efac; }
+    .cm  { color: #64748b; font-style: italic; }
+    .cl  { color: #fb923c; }
+    .nu  { color: #fde68a; }
+
+    /* ── HIGHLIGHT BOXES ──────────────────────────────── */
+    .highlight-box {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-l);
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    .highlight-box.green { border-color: var(--success); background: #f0fdf4; }
+    .highlight-box.orange { border-color: var(--warning); background: #fffbeb; }
+
+    /* ── SCORE BARS ───────────────────────────────────── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .skill-item { margin-bottom: 4px; }
+    .skill-name { font-size: 12px; font-weight: 500; color: var(--gray-800); margin-bottom: 3px; display: flex; justify-content: space-between; }
+    .skill-name span { font-size: 11px; color: var(--gray-400); }
+    .score-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+
+    /* ── KPI BANNER ───────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 10px;
+      background: white;
+    }
+    .kpi .kpi-val { font-size: 26px; font-weight: 800; color: var(--primary); }
+    .kpi .kpi-lbl { font-size: 11px; color: var(--gray-600); font-weight: 500; margin-top: 2px; }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      margin-top: 36px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--gray-400);
+      text-align: center;
+    }
+
+    /* ── DIVIDER ──────────────────────────────────────── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    ul { padding-left: 20px; color: var(--gray-600); }
+    li { margin-bottom: 4px; font-size: 13px; }
+    li strong { color: var(--gray-800); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ HEADER ══ -->
+<header>
+  <div class="wrapper" style="padding-top:0;padding-bottom:0;">
+    <div class="eyebrow">Documento de Análisis Técnico · Julio 2026</div>
+    <h1>Health Coverage AI</h1>
+    <p class="subtitle">
+      Plataforma de análisis de cobertura médica potenciada por inteligencia artificial,
+      implementando arquitectura RAG con agentes LangGraph, FastAPI asíncrono y Angular 20.
+    </p>
+    <div class="header-tags">
+      <span class="header-tag">Python 3.12 · FastAPI</span>
+      <span class="header-tag">Angular 20</span>
+      <span class="header-tag">LangGraph · RAG</span>
+      <span class="header-tag">GPT-4o</span>
+      <span class="header-tag">PostgreSQL 16</span>
+      <span class="header-tag">ChromaDB</span>
+      <span class="header-tag">Docker Compose</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+<!-- ══════════════════════════════════════════ KPI ROW ══ -->
+<div class="kpi-row no-break">
+  <div class="kpi"><div class="kpi-val">7</div><div class="kpi-lbl">Tecnologías principales</div></div>
+  <div class="kpi"><div class="kpi-val">5</div><div class="kpi-lbl">Microservicios Docker</div></div>
+  <div class="kpi"><div class="kpi-val">12</div><div class="kpi-lbl">Endpoints REST</div></div>
+  <div class="kpi"><div class="kpi-val">3</div><div class="kpi-lbl">Docs médicos indexados</div></div>
+</div>
+
+<!-- ══════════════════════════════════════════ 1 · RESUMEN EJECUTIVO ══ -->
+<div class="section no-break">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">Resumen Ejecutivo</div>
+  </div>
+  <div class="section-body">
+    <p>
+      <strong>Health Coverage AI</strong> es una aplicación SaaS full-stack que permite a asesores
+      de EPS/seguros consultar en lenguaje natural si un procedimiento médico está cubierto para
+      un afiliado específico. El sistema combina <strong>búsqueda semántica vectorial (RAG)</strong>
+      sobre documentos de póliza con el modelo <strong>GPT-4o</strong> de OpenAI para generar
+      respuestas estructuradas, precisas y auditables en tiempo real.
+    </p>
+
+    <div class="exec-grid">
+      <div class="exec-card">
+        <div class="label">Problema que resuelve</div>
+        <div class="value" style="font-size:14px;line-height:1.4;margin-top:4px;">Consulta de cobertura en segundos</div>
+        <div class="detail">Reemplaza la búsqueda manual en documentos de 50+ páginas por una respuesta IA con fuentes citadas</div>
+      </div>
+      <div class="exec-card green">
+        <div class="label">Resultado de análisis</div>
+        <div class="value" style="font-size:14px;line-height:1.4;margin-top:4px;">JSON estructurado + trazabilidad</div>
+        <div class="detail">Devuelve: cobertura (cubierto / no cubierto / con condiciones), texto explicativo, documentos fuente y traza del agente</div>
+      </div>
+      <div class="exec-card orange">
+        <div class="label">Datos del afiliado</div>
+        <div class="value" style="font-size:14px;line-height:1.4;margin-top:4px;">30+ atributos clínicos y financieros</div>
+        <div class="detail">Plan, estado de afiliación, morosidad, carencias, autorizaciones previas, preexistencias</div>
+      </div>
+      <div class="exec-card cyan">
+        <div class="label">Reglas de negocio en prompt</div>
+        <div class="value" style="font-size:14px;line-height:1.4;margin-top:4px;">8 reglas de cobertura</div>
+        <div class="detail">Carencia, exclusiones, estado de pagos, autorización previa, copago, necesidad médica, cita de documentos</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Diferenciador clave:</strong> El agente no responde desde parámetros del modelo entrenado,
+      sino que recupera fragmentos exactos de los documentos de la aseguradora (RAG) y razona sobre ellos,
+      garantizando que la respuesta siempre esté fundamentada en las cláusulas vigentes de la póliza.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 2 · ARQUITECTURA ══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">Arquitectura del Sistema</div>
+  </div>
+  <div class="section-body">
+
+    <h2>Diagrama de Servicios</h2>
+    <div class="arch-diagram">
+<span class="comment">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│                        DOCKER NETWORK: health_network               │</span>
+<span class="comment">└─────────────────────────────────────────────────────────────────────┘</span>
+
+  <span class="highlight">Browser  </span>──HTTP:4200──► <span class="green-text">Nginx (frontend:80)</span>
+                               │ SPA Angular 20 servida como estático
+                               │ /api/*  ──proxy_pass──►  <span class="yellow-text">backend:8000</span>
+                                                              │
+                               ┌──────────────────────────────┘
+                               │   FastAPI · Uvicorn · Python 3.12
+                               │   REST API v1 (CORS habilitado)
+                               │   Agente LangGraph + RAG
+                               │
+              ┌────────────────┼───────────────────┐
+              ▼                ▼                   ▼
+    <span class="orange-text">PostgreSQL 16</span>       <span class="green-text">ChromaDB</span>           <span class="highlight">OpenAI API</span>
+    (affiliates,        (vectorstore)       (GPT-4o)
+     consultations)     h_coverage_docs     cloud · REST
+    port 5432           port 8000           api.openai.com
+
+<span class="comment">Volúmenes persistentes: postgres_data · chroma_data</span>
+    </div>
+
+    <h2 style="margin-top:20px;">Flujo de una Consulta de Cobertura</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-box http">1. HTTP POST<br/>/coverage-analysis</div>
+        <div class="flow-label">Angular → Nginx<br/>→ FastAPI</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">2. Lookup<br/>Afiliado</div>
+        <div class="flow-label">PostgreSQL<br/>por nº documento</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box ai">3. RAG Retrieve<br/>Top-6 chunks</div>
+        <div class="flow-label">ChromaDB<br/>cosine similarity</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box ai">4. LLM Analyze<br/>GPT-4o</div>
+        <div class="flow-label">Prompt + contexto<br/>→ JSON respuesta</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box db">5. Persist<br/>Consulta</div>
+        <div class="flow-label">JSONB audit trail<br/>PostgreSQL</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box http">6. Response<br/>+ Agent Trace</div>
+        <div class="flow-label">Fuentes citadas<br/>+ duración ms</div>
+      </div>
+    </div>
+
+    <h2>Patrones de Diseño Aplicados</h2>
+    <table>
+      <thead><tr><th>Patrón</th><th>Implementación</th><th>Beneficio</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Repository Pattern</strong></td><td>AffiliateRepository, ConsultationRepository (SQLAlchemy async)</td><td>Desacopla lógica de negocio del ORM; facilita testing con mocks</td></tr>
+        <tr><td><strong>Service Layer</strong></td><td>CoverageAnalysisService, AffiliateService, DocumentService</td><td>Orquesta repositorios, agente IA y construcción de respuesta</td></tr>
+        <tr><td><strong>Dependency Injection</strong></td><td>FastAPI <code>Depends()</code> en todos los endpoints</td><td>Composición en tiempo de petición; testable con dependency overrides</td></tr>
+        <tr><td><strong>Agent/Graph Pattern</strong></td><td>LangGraph StateGraph (2 nodos: retrieve → analyze)</td><td>Estado inmutable, flujo determinista, extensible a nodos adicionales</td></tr>
+        <tr><td><strong>Adapter Pattern</strong></td><td>OpenAIProvider implementa LLMProvider abstracto</td><td>Intercambiable por Anthropic/Gemini sin cambiar el agente</td></tr>
+        <tr><td><strong>Multi-Stage Docker</strong></td><td>base → development → production</td><td>Imágenes production sin dependencias de dev; hot-reload en dev</td></tr>
+        <tr><td><strong>Structured Logging</strong></td><td>structlog (JSON en prod, colorized console en dev)</td><td>Listo para agregadores (ELK, CloudWatch, Datadog)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 3 · STACK TECNOLÓGICO ══ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">Stack Tecnológico</div>
+  </div>
+  <div class="section-body">
+
+    <h2>Backend (Python)</h2>
+    <table>
+      <thead><tr><th>Categoría</th><th>Tecnología</th><th>Versión</th><th>Rol en el proyecto</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip chip-blue">Framework</span></td><td><strong>FastAPI</strong></td><td>≥0.115</td><td>REST API asíncrona con validación Pydantic y docs automáticas</td></tr>
+        <tr><td><span class="chip chip-blue">Servidor</span></td><td><strong>Uvicorn</strong></td><td>≥0.32</td><td>ASGI server; workers múltiples en producción, --reload en dev</td></tr>
+        <tr><td><span class="chip chip-purple">ORM</span></td><td><strong>SQLAlchemy 2.0</strong></td><td>≥2.0</td><td>ORM async con declarative base + migraciones Alembic</td></tr>
+        <tr><td><span class="chip chip-purple">DB Driver</span></td><td><strong>AsyncPG</strong></td><td>≥0.30</td><td>Driver async nativo PostgreSQL (máximo throughput)</td></tr>
+        <tr><td><span class="chip chip-green">AI / Agente</span></td><td><strong>LangGraph</strong></td><td>≥0.2</td><td>StateGraph para el agente de cobertura (retrieve → analyze)</td></tr>
+        <tr><td><span class="chip chip-green">AI / Orquestación</span></td><td><strong>LangChain</strong></td><td>≥0.3</td><td>Abstracciones de LLM y prompt templates</td></tr>
+        <tr><td><span class="chip chip-green">LLM</span></td><td><strong>OpenAI SDK</strong></td><td>≥1.57</td><td>GPT-4o vía AsyncOpenAI; temperatura 0.1 para determinismo</td></tr>
+        <tr><td><span class="chip chip-cyan">Vector DB</span></td><td><strong>ChromaDB</strong></td><td>≥0.6</td><td>HTTP client; colección única con embeddings all-MiniLM-L6-v2</td></tr>
+        <tr><td><span class="chip chip-orange">Validación</span></td><td><strong>Pydantic v2</strong></td><td>≥2.10</td><td>Schemas de request/response y configuración tipada</td></tr>
+        <tr><td><span class="chip chip-orange">Config</span></td><td><strong>Pydantic Settings</strong></td><td>≥2.7</td><td>Carga desde .env con jerarquía dev/test/prod</td></tr>
+        <tr><td><span class="chip chip-gray">Logging</span></td><td><strong>structlog</strong></td><td>≥24.4</td><td>Logging estructurado JSON/console con contexto por petición</td></tr>
+        <tr><td><span class="chip chip-gray">Parsing</span></td><td><strong>python-docx</strong></td><td>≥1.1</td><td>Parser de pólizas DOCX con chunking semántico por headings</td></tr>
+        <tr><td><span class="chip chip-pink">Testing</span></td><td><strong>pytest + httpx</strong></td><td>≥8.0</td><td>Tests de contrato API y servicios (async)</td></tr>
+        <tr><td><span class="chip chip-gray">Linting</span></td><td><strong>ruff</strong></td><td>≥0.8</td><td>Linter + formatter (reemplaza flake8 + black)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Frontend (TypeScript)</h2>
+    <table>
+      <thead><tr><th>Categoría</th><th>Tecnología</th><th>Versión</th><th>Rol en el proyecto</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip chip-blue">Framework</span></td><td><strong>Angular 20</strong></td><td>20.3.25</td><td>SPA con Signals, zoneless change detection y lazy loading</td></tr>
+        <tr><td><span class="chip chip-blue">Lenguaje</span></td><td><strong>TypeScript</strong></td><td>~5.9</td><td>Tipado estricto en modelos, servicios y componentes</td></tr>
+        <tr><td><span class="chip chip-purple">UI</span></td><td><strong>Angular Material 20</strong></td><td>20.2.14</td><td>Cards, forms, spinners, expansion panels, badges</td></tr>
+        <tr><td><span class="chip chip-orange">Reactividad</span></td><td><strong>RxJS 7</strong></td><td>~7.8</td><td>Observables para HTTP; signals para estado de componentes</td></tr>
+        <tr><td><span class="chip chip-gray">Estilos</span></td><td><strong>SCSS</strong></td><td>-</td><td>Estilos encapsulados por componente</td></tr>
+        <tr><td><span class="chip chip-pink">Testing</span></td><td><strong>Jasmine + Karma</strong></td><td>~5.9</td><td>Unit tests de componentes</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Infraestructura</h2>
+    <table>
+      <thead><tr><th>Componente</th><th>Imagen</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Docker Compose</strong></td><td>docker/compose</td><td>Orquestación de 4 servicios con redes, volúmenes y health checks</td></tr>
+        <tr><td><strong>PostgreSQL</strong></td><td>postgres:16-alpine</td><td>BD relacional principal (afiliados + historial de consultas JSONB)</td></tr>
+        <tr><td><strong>ChromaDB</strong></td><td>chromadb/chroma</td><td>Vector store HTTP para búsqueda semántica de documentos médicos</td></tr>
+        <tr><td><strong>Nginx</strong></td><td>nginx:alpine</td><td>Sirve Angular SPA + proxy inverso a /api → backend:8000</td></tr>
+        <tr><td><strong>Node.js</strong></td><td>node:22-alpine</td><td>Build stage Angular (multi-stage, no incluido en imagen final)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 4 · IA / RAG ══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">Pipeline de Inteligencia Artificial (RAG + LangGraph)</div>
+  </div>
+  <div class="section-body">
+
+    <div class="highlight-box">
+      El núcleo del sistema es un agente RAG (<em>Retrieval-Augmented Generation</em>) implementado como
+      un grafo de estados con <strong>LangGraph</strong>. El agente no alucina respuestas genéricas:
+      recupera fragmentos exactos de los documentos de cobertura y razona sobre ellos.
+    </div>
+
+    <h2>Grafo del Agente (LangGraph StateGraph)</h2>
+    <div class="arch-diagram">
+<span class="fn">START</span>
+  │
+  ▼
+<span class="green-text">[ Nodo 1: retrieve_context ]</span>
+  │  Entrada:  query (str) + affiliate (dict)
+  │  Acción:   CoverageRetriever.retrieve(query, n_results=6)
+  │            └─► ChromaDB cosine similarity search
+  │  Salida:   chunks: list[RetrievedChunk], steps_trace
+  │
+  ▼
+<span class="yellow-text">[ Nodo 2: analyze_coverage ]</span>
+  │  Entrada:  chunks + affiliate + query
+  │  Acción:   Formatea contexto → build_system_prompt() + build_user_prompt()
+  │            └─► AsyncOpenAI.chat.completions.create(model="gpt-4o", temperature=0.1)
+  │            └─► Parsea JSON response (con fallback regex si el LLM añade markdown)
+  │  Salida:   coverage_result, response_text, conditions
+  │
+  ▼
+<span class="fn">END</span>  →  CoverageState final → CoverageAnalysisService → persist → HTTP response
+    </div>
+
+    <h2>Chunking Semántico de Documentos</h2>
+    <table>
+      <thead><tr><th>Parámetro</th><th>Valor</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Tamaño de chunk</td><td>80 – 900 caracteres</td><td>Mantiene contexto semántico completo sin superar ventana de embedding</td></tr>
+        <tr><td>Criterio de split</td><td>Headings Word (H1/H2/H3) + patrones numéricos</td><td>División por sección documental, no arbitraria por tokens</td></tr>
+        <tr><td>Metadata por chunk</td><td>document_slug, section, chunk_index, char_count</td><td>Permite citar el documento y sección exacta en la respuesta</td></tr>
+        <tr><td>Embedding model</td><td>all-MiniLM-L6-v2 (ONNX, local)</td><td>No requiere API key; rápido para producción moderada</td></tr>
+        <tr><td>Métrica de distancia</td><td>Cosine → convertida a similitud [0,1]</td><td><code>similarity = max(0, 1 - distance/2)</code></td></tr>
+        <tr><td>Top-K recuperados</td><td>6 fragmentos</td><td>Balance entre contexto y tamaño de prompt</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Ingeniería de Prompts</h2>
+    <p>El prompt de sistema instruye a GPT-4o como <em>especialista senior en coberturas médicas</em>
+       con 8 reglas de negocio explícitas que garantizan respuestas correctas:</p>
+    <ul>
+      <li><strong>Regla 1:</strong> Si afiliado no está "Activo" o pagos no "Al día" → siempre "no_cubierto"</li>
+      <li><strong>Regla 2:</strong> Verificar período de carencia según antigüedad del afiliado</li>
+      <li><strong>Regla 3:</strong> Detectar si el servicio requiere autorización previa (DOC2 §4)</li>
+      <li><strong>Regla 4:</strong> Verificar que el servicio no esté en lista de exclusiones (DOC2 §5)</li>
+      <li><strong>Regla 5:</strong> Aplicar criterios de necesidad médica (DOC3 §2)</li>
+      <li><strong>Regla 6:</strong> Determinar copago / coaseguro según plan del afiliado (DOC1 §4)</li>
+      <li><strong>Regla 7:</strong> Citar siempre la sección del documento que respalda la conclusión</li>
+      <li><strong>Regla 8:</strong> Responder <em>únicamente</em> JSON válido (sin texto extra)</li>
+    </ul>
+
+    <h2 style="margin-top:16px;">Estructura de Respuesta del LLM</h2>
+    <pre>{
+  <span class="str">"coverage_result"</span>: <span class="str">"cubierto"</span> | <span class="str">"no_cubierto"</span> | <span class="str">"cubierto_con_condiciones"</span>,
+  <span class="str">"response_text"</span>:   <span class="str">"Explicación profesional en español con citas a DOC1 §3.2..."</span>,
+  <span class="str">"conditions"</span>:      [<span class="str">"Requiere autorización previa"</span>, <span class="str">"Aplica copago del 20%"</span>]
+}</pre>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 5 · API REST ══ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">API REST — Contratos y Endpoints</div>
+  </div>
+  <div class="section-body">
+    <p>Todos los endpoints bajo <code>/api/v1</code>. CORS habilitado para <code>http://localhost:4200</code>.
+       Documentación automática disponible en <code>/docs</code> (solo en modo DEBUG).</p>
+
+    <table>
+      <thead><tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="chip chip-green">GET</span></td>
+          <td><code>/health</code></td>
+          <td>Liveness probe — retorna <code>{"status":"ok","version":"1.0.0"}</code></td>
+          <td>✅ Producción</td>
+        </tr>
+        <tr>
+          <td><span class="chip chip-green">GET</span></td>
+          <td><code>/api/v1/system</code></td>
+          <td>Estado operacional: PostgreSQL + ChromaDB (connected/disconnected)</td>
+          <td>✅ Producción</td>
+        </tr>
+        <tr>
+          <td><span class="chip chip-green">GET</span></td>
+          <td><code>/api/v1/affiliates/{document}</code></td>
+          <td>Busca afiliado por número de documento. Retorna 30+ campos.</td>
+          <td>✅ Producción</td>
+        </tr>
+        <tr>
+          <td><span class="chip chip-blue">POST</span></td>
+          <td><code>/api/v1/coverage-analysis</code></td>
+          <td>Análisis RAG + LLM. Recibe documento + consulta. Retorna cobertura + fuentes + traza.</td>
+          <td>✅ Producción</td>
+        </tr>
+        <tr>
+          <td><span class="chip chip-green">GET</span></td>
+          <td><code>/api/v1/documents</code></td>
+          <td>Lista documentos indexados en ChromaDB con conteo de chunks.</td>
+          <td>✅ Producción</td>
+        </tr>
+        <tr>
+          <td><span class="chip chip-green">GET</span></td>
+          <td><code>/api/v1/suggestions?q=...</code></td>
+          <td>Sugerencias de autocompletado para consultas (stub Sprint 3).</td>
+          <td>🔄 Sprint 3</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Modelo de Respuesta — Análisis de Cobertura</h2>
+    <pre>{
+  <span class="str">"consultation_id"</span>: <span class="str">"550e8400-e29b-41d4-a716-446655440000"</span>,
+  <span class="str">"affiliate_id"</span>:    <span class="str">"AF-00123"</span>,
+  <span class="str">"coverage_result"</span>: <span class="str">"cubierto_con_condiciones"</span>,
+  <span class="str">"response_text"</span>:  <span class="str">"Según DOC1 §3.2 el servicio está cubierto al 80%..."</span>,
+  <span class="str">"sources"</span>: [
+    {
+      <span class="str">"document"</span>:        <span class="str">"DOC1_Manual_de_Beneficios.docx"</span>,
+      <span class="str">"section"</span>:         <span class="str">"3. Servicios Ambulatorios"</span>,
+      <span class="str">"excerpt"</span>:         <span class="str">"Los servicios de laboratorio clínico..."</span>,
+      <span class="str">"relevance_score"</span>: <span class="nu">0.9234</span>
+    }
+  ],
+  <span class="str">"agent_trace"</span>: [
+    { <span class="str">"step"</span>: <span class="str">"retrieve_context"</span>, <span class="str">"result"</span>: <span class="str">"6 fragmentos"</span>, <span class="str">"duration_ms"</span>: <span class="nu">245</span> },
+    { <span class="str">"step"</span>: <span class="str">"analyze_coverage"</span>, <span class="str">"result"</span>: <span class="str">"cubierto_con_condiciones"</span>, <span class="str">"duration_ms"</span>: <span class="nu">1840</span> }
+  ],
+  <span class="str">"duration_ms"</span>: <span class="nu">2085</span>
+}</pre>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 6 · BASE DE DATOS ══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div class="section-title">Modelo de Base de Datos (PostgreSQL 16)</div>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Tabla</th><th>Columnas clave</th><th>Propósito</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>affiliates</strong></td>
+          <td>
+            <code>id_afiliado</code> (unique), <code>numero_documento</code> (unique, indexed),
+            <code>plan</code>, <code>estado_afiliacion</code>, <code>estado_pagos</code>,
+            <code>dias_mora</code>, <code>tiene_autorizacion_previa</code>,
+            <code>preexistencia_declarada</code> (30+ campos)
+          </td>
+          <td>Entidad central del dominio. Indexada por documento, plan y estado para consultas rápidas.</td>
+        </tr>
+        <tr>
+          <td><strong>consultations</strong></td>
+          <td>
+            <code>id</code> (UUID, PK), <code>affiliate_id</code> (FK RESTRICT),
+            <code>query_text</code> (TEXT), <code>response_text</code> (TEXT),
+            <code>coverage_result</code> (VARCHAR), <code>sources_used</code> (JSONB),
+            <code>agent_trace</code> (JSONB), <code>duration_ms</code>, <code>created_at</code>
+          </td>
+          <td>Audit trail completo de cada consulta IA. JSONB permite query flexible sobre fuentes y traza.</td>
+        </tr>
+        <tr>
+          <td><strong>logs</strong></td>
+          <td><code>level</code>, <code>message</code>, <code>module</code>, <code>extra</code> (JSONB)</td>
+          <td>Persistencia de logs estructurados (opcional, para dashboards de observabilidad).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Las migraciones se gestionan con <strong>Alembic</strong> (inicialización completa en
+       <code>d8f24a01d6ad_initial_schema.py</code>) con soporte de upgrade/downgrade.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 7 · FRONTEND ══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <div class="section-title">Frontend — Angular 20 SPA</div>
+  </div>
+  <div class="section-body">
+
+    <h2>Estructura de Componentes (Feature-based)</h2>
+    <table>
+      <thead><tr><th>Componente</th><th>Responsabilidad</th><th>Técnicas usadas</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>AffiliateSearchComponent</strong></td>
+          <td>Punto de entrada principal. Búsqueda por número de documento con spinner.</td>
+          <td>Signals (<code>signal()</code>), FormsModule, lazy-loaded via Router</td>
+        </tr>
+        <tr>
+          <td><strong>AffiliateCardComponent</strong></td>
+          <td>Muestra ficha completa del afiliado: plan, estado, mora, autorizaciones.</td>
+          <td>Input binding (<code>@input()</code>), Material Card</td>
+        </tr>
+        <tr>
+          <td><strong>CoverageQueryComponent</strong></td>
+          <td>Formulario de consulta en lenguaje natural (validación min. 10 chars).</td>
+          <td>Signals, HttpClient Observable, Material Form</td>
+        </tr>
+        <tr>
+          <td><strong>CoverageResultComponent</strong></td>
+          <td>Muestra resultado (badge coloreado), texto explicativo, fuentes y traza del agente.</td>
+          <td><code>computed()</code> signals, Expansion panels, Badge coloreado por resultado</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Decisiones Técnicas Destacadas</h2>
+    <ul>
+      <li><strong>Signals sobre NgRx:</strong> Estado local de componentes con la nueva API de Signals de Angular 16+, sin boilerplate de Redux.</li>
+      <li><strong>Zoneless change detection:</strong> <code>provideZonelessChangeDetection()</code> — elimina Zone.js para mejor rendimiento.</li>
+      <li><strong>Lazy loading:</strong> AffiliateSearchComponent (y sus hijos transitivos) se cargan solo al navegar a la ruta.</li>
+      <li><strong>Error interceptor HTTP:</strong> Centraliza manejo de errores 0 (red), 404, 501, 503 y 5xx con mensajes en español.</li>
+      <li><strong>Proxy nginx:</strong> En producción, las llamadas <code>/api/</code> se enrutan al backend por nginx, evitando CORS y centralizando el tráfico.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 8 · DEVOPS ══ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <div class="section-title">DevOps e Infraestructura</div>
+  </div>
+  <div class="section-body">
+
+    <h2>Multi-Stage Docker Builds</h2>
+    <table>
+      <thead><tr><th>Servicio</th><th>Stage base</th><th>Stage dev</th><th>Stage prod</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Backend</strong></td>
+          <td>python:3.12-slim + gcc + libpq-dev + requirements.txt</td>
+          <td>Uvicorn --reload + hot-reload sobre volumen montado</td>
+          <td>Uvicorn --workers 2 + HEALTHCHECK curl /health</td>
+        </tr>
+        <tr>
+          <td><strong>Frontend</strong></td>
+          <td>node:22-alpine (npm ci)</td>
+          <td>ng serve --host 0.0.0.0 (HMR local)</td>
+          <td>ng build --prod → nginx:alpine + nginx.conf personalizado</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Docker Compose Override (desarrollo)</h2>
+    <p>
+      <code>docker-compose.override.yml</code> se aplica automáticamente en local:
+      activa el <em>target: development</em> del backend con <code>--reload</code> y variables
+      <code>ENV=development, DEBUG=true</code>. El frontend Angular se ejecuta típicamente fuera
+      de Docker con <code>npm start</code> para aprovechar el Hot Module Replacement.
+    </p>
+
+    <h2>Health Checks y Dependencias de Inicio</h2>
+    <table>
+      <thead><tr><th>Servicio</th><th>Método</th><th>Intervalo</th><th>Condición de arranque</th></tr></thead>
+      <tbody>
+        <tr><td>PostgreSQL</td><td><code>pg_isready</code></td><td>10s</td><td>—</td></tr>
+        <tr><td>ChromaDB</td><td>service_started</td><td>—</td><td>—</td></tr>
+        <tr><td>Backend</td><td><code>curl /health</code> (HTTP 200)</td><td>30s</td><td>postgres: service_healthy</td></tr>
+        <tr><td>Frontend</td><td><code>wget 127.0.0.1:80</code></td><td>30s</td><td>backend: service_started</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Nginx — Configuración de Producción</h2>
+    <ul>
+      <li><strong>SPA routing:</strong> <code>try_files $uri $uri/ /index.html</code> para rutas Angular</li>
+      <li><strong>API proxy:</strong> <code>location /api/ → proxy_pass http://backend:8000/api/</code></li>
+      <li><strong>Cache agresivo:</strong> Activos estáticos (.js, .css, imágenes) con <code>expires 1y</code></li>
+      <li><strong>Headers de seguridad:</strong> X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, Referrer-Policy</li>
+      <li><strong>Compresión:</strong> gzip habilitado para text/plain, CSS, JSON, JavaScript</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 9 · TESTING ══ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <div class="section-title">Estrategia de Testing</div>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Archivo de test</th><th>Tipo</th><th>Qué valida</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>test_api_contract.py</code></td>
+          <td>Test de contrato API</td>
+          <td>Endpoint <code>GET /health</code>: HTTP 200, campos <code>status</code>, <code>service</code>, <code>version</code></td>
+        </tr>
+        <tr>
+          <td><code>test_docx_parser.py</code></td>
+          <td>Test unitario</td>
+          <td>Parser DOCX: cantidad de chunks, longitud [80-900 chars], presencia de metadata (section, slug)</td>
+        </tr>
+        <tr>
+          <td><code>test_suggestion_service.py</code></td>
+          <td>Test unitario</td>
+          <td>SuggestionService: retorna lista, respeta límite, filtrado por query</td>
+        </tr>
+        <tr>
+          <td><code>validate_e2e.py</code></td>
+          <td>Test E2E / script de validación</td>
+          <td>Flujo completo: health → affiliate lookup → coverage analysis con escenarios reales</td>
+        </tr>
+        <tr>
+          <td><code>app.spec.ts</code></td>
+          <td>Test de componente Angular</td>
+          <td>AppComponent: crea correctamente, renderiza sin errores</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Configuración de Test</h2>
+    <ul>
+      <li><strong>TestingSettings:</strong> Clase de configuración separada que apunta a <code>health_coverage_test</code> DB</li>
+      <li><strong>FastAPI TestClient:</strong> Tests síncronos sobre la aplicación ASGI completa</li>
+      <li><strong>pytest-asyncio:</strong> Soporte para tests async en endpoints y servicios</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ 10 · HABILIDADES ══ -->
+<div class="section page-break">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-title">Habilidades Técnicas Demostradas</div>
+  </div>
+  <div class="section-body">
+
+    <div class="highlight-box green">
+      Este proyecto demuestra capacidad para diseñar, implementar y desplegar una solución de IA
+      end-to-end completamente funcional, abarcando backend, frontend, base de datos vectorial,
+      orquestación de contenedores y prompt engineering en un único sistema coherente.
+    </div>
+
+    <div class="skills-grid">
+      <div>
+        <h2>Backend & API</h2>
+        <div class="skill-item"><div class="skill-name">Python / FastAPI (async) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:95%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">SQLAlchemy 2.0 async + Alembic <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Pydantic v2 (validación + config) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:92%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Diseño REST API (contratos, errores) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Dependency Injection (FastAPI) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:93%"></div></div></div>
+
+        <h2 style="margin-top:16px;">Inteligencia Artificial</h2>
+        <div class="skill-item"><div class="skill-name">RAG (Retrieval-Augmented Generation) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:88%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">LangGraph (StateGraph, agentes) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:85%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">OpenAI API (async, prompt eng.) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Vector DB (ChromaDB, embeddings) <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:80%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Chunking semántico de documentos <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:78%"></div></div></div>
+      </div>
+      <div>
+        <h2>Frontend</h2>
+        <div class="skill-item"><div class="skill-name">Angular 20 (Signals, zoneless) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:88%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">TypeScript (modelos tipados) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">RxJS + Angular Material <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:85%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Interceptores HTTP / manejo errores <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:87%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Lazy loading + routing SPA <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:82%"></div></div></div>
+
+        <h2 style="margin-top:16px;">DevOps & Arquitectura</h2>
+        <div class="skill-item"><div class="skill-name">Docker (multi-stage, compose) <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:88%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Nginx (SPA + proxy inverso) <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:80%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Diseño orientado al dominio (DDD) <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:78%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Patrones: Repository, Service, Adapter <span>Avanzado</span></div><div class="score-bar"><div class="score-bar-fill" style="width:90%"></div></div></div>
+        <div class="skill-item"><div class="skill-name">Logging estructurado (structlog) <span>Intermedio</span></div><div class="score-bar"><div class="score-bar-fill" style="width:76%"></div></div></div>
+      </div>
+    </div>
+
+    <hr style="margin-top:20px;" />
+
+    <h2>Lo que diferencia este proyecto de un CRUD típico</h2>
+    <table>
+      <thead><tr><th>Aspecto</th><th>Implementación en este proyecto</th></tr></thead>
+      <tbody>
+        <tr><td><strong>No es un chatbot genérico</strong></td><td>El LLM opera sobre documentos de póliza reales recuperados por RAG, no sobre conocimiento paramétrico del modelo</td></tr>
+        <tr><td><strong>Trazabilidad completa</strong></td><td>Cada consulta persiste la traza del agente, los chunks usados y su score de relevancia en JSONB para auditoría</td></tr>
+        <tr><td><strong>Reglas de negocio en prompt</strong></td><td>8 reglas de cobertura real (carencia, exclusiones, mora, autorización previa) garantizan respuestas legalmente coherentes</td></tr>
+        <tr><td><strong>Arquitectura extensible</strong></td><td>El adaptador LLMProvider permite intercambiar GPT-4o por cualquier otro modelo sin cambiar el agente; el grafo LangGraph se extiende añadiendo nodos</td></tr>
+        <tr><td><strong>Listo para producción</strong></td><td>Health checks, multi-stage builds, logging JSON, Alembic migrations, CORS correcto, manejo de errores en todos los niveles</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ FOOTER ══ -->
+<footer>
+  Health Coverage AI · Análisis Técnico · Julio 2026 ·
+  Stack: Python 3.12 · FastAPI · LangGraph · Angular 20 · PostgreSQL · ChromaDB · Docker
+</footer>
+
+</div><!-- /wrapper -->
+</body>
+</html>
